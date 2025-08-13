@@ -1,0 +1,12 @@
+# C++ Constants Refactoring Tool Dependencies
+
+# Core dependencies for C++ parsing and analysis
+pygccxml>=2.2.1
+
+# Standard library modules (included with Python, listed for documentation)
+# argparse - Command line argument parsing
+# pathlib - Modern path handling
+# json - JSON configuration file support
+
+# Additional dependencies for robust functionality
+castxml>=0.4.4  # Required by pygccxml for C++ AST generation

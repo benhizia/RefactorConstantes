@@ -1,0 +1,9 @@
+#ifndef SIMPLE_CONSTANTS_H
+#define SIMPLE_CONSTANTS_H
+
+#define MAX_BUFFER_SIZE 1024
+#define DEFAULT_PORT 8080
+#define VERSION_MAJOR 1
+#define VERSION_MINOR 0
+
+#endif
