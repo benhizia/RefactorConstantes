@@ -242,6 +242,94 @@ class SimplifiedConstantsRefactor:
 
         return categorized
 
+    def generate_files(self, output_dir: str = "refactored_constants"):
+        """
+        Generate constants files per module and shared constants file.
+
+        Args:
+            output_dir: Directory where to generate the files
+        """
+        print(f"\n*** Generating constants files in: {output_dir}")
+
+        output_path = Path(output_dir)
+        output_path.mkdir(exist_ok=True)
+
+        categorized = self.categorize_constants()
+
+        # Get original constant objects for their values
+        constants_dict = {c.name: c for c in self.constants}
+
+        # Generate module-specific files
+        for module in self.modules:
+            module_constants = categorized[module]
+            if not module_constants:
+                continue
+
+            module_file = output_path / f"{module}_constants.h"
+
+            with open(module_file, 'w', encoding='utf-8') as f:
+                f.write(f"// Module-specific constants for: {module}\n")
+                f.write(f"// Auto-generated from {self.constants_file.name}\n")
+                f.write(f"// These constants are used ONLY in the {module} module\n\n")
+                f.write(f"#ifndef {module.upper()}_CONSTANTS_H\n")
+                f.write(f"#define {module.upper()}_CONSTANTS_H\n\n")
+
+                for const_name in sorted(module_constants):
+                    const = constants_dict.get(const_name)
+                    if const:
+                        f.write(f"#define {const.name} {const.value}\n")
+
+                f.write(f"\n#endif // {module.upper()}_CONSTANTS_H\n")
+
+            print(f"   [+] Created: {module_file} ({len(module_constants)} constants)")
+
+        # Generate shared constants file
+        shared = categorized['shared']
+        if shared:
+            shared_file = output_path / "shared_constants.h"
+
+            with open(shared_file, 'w', encoding='utf-8') as f:
+                f.write(f"// Shared constants used by multiple modules\n")
+                f.write(f"// Auto-generated from {self.constants_file.name}\n\n")
+                f.write(f"#ifndef SHARED_CONSTANTS_H\n")
+                f.write(f"#define SHARED_CONSTANTS_H\n\n")
+
+                for const_name in sorted(shared):
+                    const = constants_dict.get(const_name)
+                    if const:
+                        # Add comment showing which modules use it
+                        modules_using = ', '.join(sorted(self.usage_map[const_name]))
+                        f.write(f"// Used by: {modules_using}\n")
+                        f.write(f"#define {const.name} {const.value}\n\n")
+
+                f.write(f"#endif // SHARED_CONSTANTS_H\n")
+
+            print(f"   [+] Created: {shared_file} ({len(shared)} constants)")
+
+        # Generate unused constants file (for reference)
+        unused = categorized['unused']
+        if unused:
+            unused_file = output_path / "unused_constants.h"
+
+            with open(unused_file, 'w', encoding='utf-8') as f:
+                f.write(f"// UNUSED constants (not found in any module)\n")
+                f.write(f"// Auto-generated from {self.constants_file.name}\n")
+                f.write(f"// Consider removing these if they're truly unused\n\n")
+                f.write(f"#ifndef UNUSED_CONSTANTS_H\n")
+                f.write(f"#define UNUSED_CONSTANTS_H\n\n")
+
+                for const_name in sorted(unused):
+                    const = constants_dict.get(const_name)
+                    if const:
+                        f.write(f"#define {const.name} {const.value}\n")
+
+                f.write(f"\n#endif // UNUSED_CONSTANTS_H\n")
+
+            print(f"   [+] Created: {unused_file} ({len(unused)} constants - for reference)")
+
+        print(f"\n[OK] Generated {len(self.modules)} module files + shared/unused files")
+        print(f"[OK] Output directory: {output_path.absolute()}\n")
+
     def run(self):
         """Run the complete analysis."""
         print("\n*** Starting Simplified Constants Refactoring Analysis\n")
@@ -293,6 +381,20 @@ Examples:
     )
 
     parser.add_argument(
+        '--generate',
+        '-g',
+        action='store_true',
+        help='Generate constants files per module (default: analysis only)'
+    )
+
+    parser.add_argument(
+        '--output-dir',
+        '-o',
+        default='refactored_constants',
+        help='Output directory for generated files (default: refactored_constants)'
+    )
+
+    parser.add_argument(
         '--version',
         action='version',
         version='%(prog)s 1.0 - Simplified Edition'
@@ -317,6 +419,11 @@ Examples:
 
     if result is None:
         sys.exit(1)
+
+    # Generate files if requested
+    if args.generate:
+        analyzer.generate_files(args.output_dir)
+        print(f"\n[OK] Refactoring complete! Check {args.output_dir}/ for generated files.\n")
 
 
 if __name__ == '__main__':

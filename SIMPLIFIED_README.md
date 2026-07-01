@@ -12,18 +12,30 @@ Ultra-simple version of the constants refactoring tool. No dependencies, no CMak
 ## Usage
 
 ```bash
+# Analysis only (no file generation)
 python simplified_cst_refactor.py <constants_file> <project_root>
+
+# Analysis + Generate refactored files
+python simplified_cst_refactor.py <constants_file> <project_root> --generate
+
+# Specify custom output directory
+python simplified_cst_refactor.py <constants_file> <project_root> -g -o output_dir
 ```
 
 ### Examples
 
 ```bash
-# Test with sample data
+# Test with sample data (analysis only)
 python simplified_cst_refactor.py test_data/sample_constants.h test_data
 
-# Your project
+# Generate refactored files
+python simplified_cst_refactor.py test_data/sample_constants.h test_data --generate
+
+# Your project - analysis only
 python simplified_cst_refactor.py src/constants.h /path/to/project
-python simplified_cst_refactor.py include/common/defs.h .
+
+# Your project - generate files in custom directory
+python simplified_cst_refactor.py src/constants.h /path/to/project -g -o my_refactored_files
 ```
 
 ## Module Detection
@@ -41,11 +53,32 @@ project/
 
 ## Output
 
-The script categorizes constants as:
+### Analysis Mode (default)
+
+The script prints a report categorizing constants as:
 
 - **Unused**: Not found in any source file
-- **Module-specific**: Used only in one module → should go in `module/constants.h`
-- **Shared**: Used by multiple modules → should stay in shared header
+- **Module-specific**: Used only in one module
+- **Shared**: Used by multiple modules
+
+### Generation Mode (--generate)
+
+Creates header files in the output directory:
+
+```
+refactored_constants/
+├── core_constants.h          # Constants used only in 'core' module
+├── net_constants.h           # Constants used only in 'net' module  
+├── ui_constants.h            # Constants used only in 'ui' module
+├── shared_constants.h        # Constants used by multiple modules
+└── unused_constants.h        # Unused constants (for reference)
+```
+
+Each generated file:
+- Has proper header guards
+- Contains only relevant constants
+- Includes comments about usage
+- Ready to `#include` in your modules
 
 ## Requirements
 
@@ -71,14 +104,14 @@ Simple test suite (3 tests, not 10k like the original).
 - Sandbox mode, file generation, etc.
 
 **Simplified (`simplified_cst_refactor.py`):**
-- ~350 lines
+- ~400 lines
 - No dependencies
 - Simple command line
 - Basic test (3 tests)
-- Text output only
-- Analysis only (no file generation)
+- Text report + optional file generation
+- Simple header files (module_constants.h, shared_constants.h, unused_constants.h)
 
-Use the simplified version for quick analysis. Use the original for production refactoring.
+Use the simplified version for quick refactoring. Use the original for complex projects with CMake integration.
 
 ## How it works
 

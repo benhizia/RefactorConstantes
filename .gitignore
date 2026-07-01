@@ -26,6 +26,7 @@ sandbox_output/
 build_temp/
 build/
 cmake-build-*/
+refactored_constants/
 
 # IDE
 .vscode/
