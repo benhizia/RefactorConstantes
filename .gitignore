@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg-info/
+dist/
+build/
+
+# Generated config and output files
+auto_config.json
+example_config.json
+batch_example_config.json
+batch_analysis.log
+batch_report.json
+batch_documentation.md
+*_debug.log
+analysis_*.log
+analysis_*.json
+tool_documentation.md
+
+# Sandbox and build directories
+sandbox_output/
+build_temp/
+build/
+cmake-build-*/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
